@@ -1,0 +1,18 @@
+[project]
+name = "waviate"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "datasets>=3.2.0",
+    "ipykernel>=6.29.5",
+    "ipywidgets>=8.1.5",
+    "matplotlib>=3.10.0",
+    "model2vec>=0.3.8",
+    "pip>=25.0",
+    "sentence-transformers>=3.4.1",
+    "streamlit>=1.41.1",
+    "transformers==4.48.0",
+    "weaviate-client>=4.10.4",
+]
