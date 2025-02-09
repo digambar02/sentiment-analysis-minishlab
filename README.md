@@ -21,7 +21,7 @@ A streamlined web application that analyzes text sentiment using text embeddings
 
 1. Clone and install dependencies:
 ```bash
-git clone <repository-url>
+git clone [<repository-url>](https://github.com/digambar02/sentiment-analysis-minishlab.git)
 uv sync (If uv is already installed)
 ```
 
@@ -39,6 +39,10 @@ sentiment-analyzer/
 ├── minishlab.ipynb              # Training notebook
 └── pyproject.toml             # Dependencies
 ```
+
+## Note
+
+Refer minishlab.ipynb notebook explaining embedding generation, PCA visualization with transformation, and fitting of logistic regression.
 
 ## Usage
 
