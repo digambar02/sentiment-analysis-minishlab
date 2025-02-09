@@ -1,0 +1,58 @@
+# Sentiment Analyzer
+
+A streamlined web application that analyzes text sentiment using text embeddings, PCA, and Logistic Regression, built with Streamlit.
+
+## Features
+
+- Sentiment analysis with confidence scores
+- Dark mode UI with responsive design
+- Detailed sentiment probability breakdown
+- Performance-optimized with model caching
+- Mobile-friendly interface
+
+## Tech Stack
+
+- Python 3.x
+- Streamlit
+- MinishLab's Potion Retrieval Model
+- scikit-learn (PCA, Logistic Regression)
+
+## Quick Start
+
+1. Clone and install dependencies:
+```bash
+git clone <repository-url>
+uv sync (If uv is already installed)
+```
+
+2. Run the application:
+```bash
+streamlit run app.py
+```
+## Project Structure
+
+```
+sentiment-analyzer/
+├── app.py                         # Main application
+├── pca_transform.pkl             # PCA model
+├── logistic_regression_model.pkl # Classification model
+├── minishlab.ipynb              # Training notebook
+└── pyproject.toml             # Dependencies
+```
+
+## Usage
+
+1. Enter text in the input area
+2. Click "Analyze Sentiment"
+3. View results showing:
+   - Sentiment prediction (Positive/Negative)
+   - Confidence scores
+   - Probability breakdown
+
+## License
+
+MIT License
+
+## Acknowledgments
+
+Built with MinishLab's Potion Retrieval Model and Streamlit framework.
