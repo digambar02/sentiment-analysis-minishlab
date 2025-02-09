@@ -12,7 +12,7 @@ A streamlined web application that analyzes text sentiment using text embeddings
 
 ## Tech Stack
 
-- Python 3.x
+- Python 3.13
 - Streamlit
 - MinishLab's Potion Retrieval Model
 - scikit-learn (PCA, Logistic Regression)
