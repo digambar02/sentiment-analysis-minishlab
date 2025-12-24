@@ -4,20 +4,6 @@ import numpy as np
 from sklearn.decomposition import PCA
 from model2vec import StaticModel
 
-# Load saved PCA transformation
-with open("pca_transform.pkl", "rb") as file:
-    pca = pickle.load(file)
-
-# Load trained Logistic Regression model
-with open("logistic_regression_model.pkl", "rb") as file:
-    model = pickle.load(file)
-
-# Function to generate embeddings
-def generate_embeddings(text):
-    model = StaticModel.from_pretrained("minishlab/potion-retrieval-32M")
-    embeddings = model.encode([text])  # Generate embedding for single input
-    return embeddings
-
 # --- Page Configuration ---
 st.set_page_config(
     page_title="Sentiment Analyzer",
@@ -26,72 +12,180 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- Custom CSS ---
+# --- Modern Custom CSS ---
 st.markdown("""
     <style>
-    /* Dark mode colors */
-    :root {
-        --background-color: #1E1E1E;
-        --text-color: #E0E0E0;
-        --primary-color: #64B5F6;
-        --positive-bg: #1B3B2F;
-        --negative-bg: #3B1B1B;
-        --card-bg: #2D2D2D;
-        --border-color: #404040;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    * {
+        font-family: 'Inter', sans-serif;
     }
-
-    .main {
-        padding: 0rem 1rem;
-        background-color: var(--background-color);
-        color: var(--text-color);
+    
+    .stApp {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
-
-    /* Input area styling */
-    .stTextArea textarea {
-        border-radius: 10px;
-        background-color: var(--card-bg);
-        color: var(--text-color);
-        border: 1px solid var(--border-color);
+    
+    .main-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        padding: 3rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        margin: 2rem auto;
+        max-width: 900px;
     }
-
-    /* Button styling */
-    .stButton>button {
+    
+    .header-section {
+        text-align: center;
+        margin-bottom: 3rem;
+        animation: fadeInDown 0.8s ease-out;
+    }
+    
+    .main-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+        letter-spacing: -1px;
+    }
+    
+    .subtitle {
+        font-size: 1.2rem;
+        color: #64748b;
+        font-weight: 400;
+    }
+    
+    .result-card {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         border-radius: 20px;
-        padding: 0.5rem 2rem;
-        background-color: var(--primary-color);
+        padding: 2.5rem;
+        text-align: center;
+        margin: 2rem 0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        animation: scaleIn 0.5s ease-out;
+    }
+    
+    .result-card.positive {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    }
+    
+    .result-card.negative {
+        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    }
+    
+    .sentiment-emoji {
+        font-size: 5rem;
+        margin: 1rem 0;
+        animation: bounceIn 0.6s ease-out;
+    }
+    
+    .sentiment-label {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 1rem 0;
+        color: #1e293b;
+    }
+    
+    .confidence-section {
+        margin-top: 2rem;
+    }
+    
+    .metric-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .footer-text {
+        text-align: center;
+        color: #94a3b8;
+        font-size: 0.9rem;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    @keyframes bounceIn {
+        0% {
+            transform: scale(0);
+        }
+        50% {
+            transform: scale(1.1);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+    
+    /* Streamlit element overrides */
+    .stTextArea textarea {
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        padding: 1rem;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+    
+    .stTextArea textarea:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .stButton button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         border: none;
+        border-radius: 12px;
+        padding: 0.75rem 2.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
         width: 100%;
     }
-
-    .stButton>button:hover {
-        background-color: #90CAF9;
+    
+    .stButton button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
     }
-
-    /* Sentiment box styling */
-    .sentiment-box {
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin: 1rem 0;
-        text-align: center;
-        border: 1px solid var(--border-color);
-    }
-
-    /* Metric styling */
-    .css-1wivap2 {
-        background-color: var(--card-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
-        padding: 1rem;
-    }
-
-    /* Progress bar colors */
-    .stProgress > div > div > div {
-        background-color: var(--primary-color);
-    }
-
+    
     .stProgress > div > div {
-        background-color: var(--card-bg);
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+    }
+    
+    [data-testid="metric-container"] {
+        background: transparent;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -115,279 +209,83 @@ def generate_embeddings(text):
     return embeddings
 
 # --- Main Layout ---
-col1, col2, col3 = st.columns([1, 2, 1])
+st.markdown('<div class="main-container">', unsafe_allow_html=True)
 
-with col2:
-    # Header
-    st.markdown("""
-        <div style='text-align: center; padding: 2rem 0;'>
-            <h1 style='color: var(--primary-color); margin-bottom: 0;'>Sentiment Analyzer</h1>
-            <p style='color: var(--text-color); font-size: 1.1em;'>Analyze text sentiment using AI</p>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    # Input Section
-    user_input = st.text_area(
-        "Enter your text:",
-        placeholder="Type or paste your text here...",
-        height=150
-    )
-    
-    if st.button("Analyze Sentiment"):
-        if user_input.strip():
-            with st.spinner("Analyzing sentiment..."):
-                # Process Input
-                embeddings = generate_embeddings(user_input)
-                X_pca = pca.transform(embeddings)
-                prediction = model.predict(X_pca)[0]
-                probabilities = model.predict_proba(X_pca)[0]
-                
-                # Display Results
-                sentiment = "Positive" if prediction == 1 else "Negative"
-                confidence = max(probabilities)
-                bg_color = "var(--positive-bg)" if prediction == 1 else "var(--negative-bg)"
-                
-                st.markdown(f"""
-                    <div class='sentiment-box' style='background-color: {bg_color};'>
-                        <h2 style='margin-bottom: 0.5rem; color: var(--text-color);'>{sentiment}</h2>
-                        <p style='font-size: 2rem; margin: 0;'>
-                            {"😊" if prediction == 1 else "😔"}
-                        </p>
-                    </div>
-                """, unsafe_allow_html=True)
-                
-                # Confidence Scores
-                st.markdown("### Confidence Scores")
-                col_a, col_b = st.columns(2)
-                
-                with col_a:
-                    st.metric(
-                        "Positive",
-                        f"{probabilities[1]:.1%}",
-                        delta="confidence" if prediction == 1 else None
-                    )
-                
-                with col_b:
-                    st.metric(
-                        "Negative",
-                        f"{probabilities[0]:.1%}",
-                        delta="confidence" if prediction == 0 else None
-                    )
-                
-                # Visualization
-                st.progress(confidence)
-                
-        else:
-            st.error("Please enter some text to analyze.")
-
-# --- Footer ---
+# Header
 st.markdown("""
-    <div style='text-align: center; padding: 2rem 0; color: var(--text-color);'>
-        <p>Made with ❤️ using Minishlab Model, PCA, Logistic Regression and Streamlit</p>
+    <div class="header-section">
+        <h1 class="main-title">✨ Sentiment Analyzer</h1>
+        <p class="subtitle">Discover the emotion behind your text with AI-powered analysis</p>
     </div>
 """, unsafe_allow_html=True)
 
-#V3
+# Input Section
+user_input = st.text_area(
+    "Enter your text:",
+    placeholder="Type or paste your text here... Try something like 'I absolutely love this product!' or 'This was disappointing.'",
+    height=150,
+    label_visibility="collapsed"
+)
 
-# # --- Page Configuration ---
-# st.set_page_config(
-#     page_title="Sentiment Analyzer",
-#     page_icon="💭",
-#     layout="wide",
-#     initial_sidebar_state="collapsed"
-# )
+if st.button("🚀 Analyze Sentiment"):
+    if user_input.strip():
+        with st.spinner("✨ Analyzing sentiment..."):
+            # Process Input
+            embeddings = generate_embeddings(user_input)
+            X_pca = pca.transform(embeddings)
+            prediction = model.predict(X_pca)[0]
+            probabilities = model.predict_proba(X_pca)[0]
+            
+            # Display Results
+            sentiment = "Positive" if prediction == 1 else "Negative"
+            confidence = max(probabilities)
+            card_class = "positive" if prediction == 1 else "negative"
+            emoji = "😊" if prediction == 1 else "😔"
+            
+            st.markdown(f"""
+                <div class="result-card {card_class}">
+                    <div class="sentiment-emoji">{emoji}</div>
+                    <div class="sentiment-label">{sentiment}</div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # Confidence Scores
+            st.markdown('<div class="confidence-section">', unsafe_allow_html=True)
+            st.markdown("### 📊 Confidence Breakdown")
+            
+            col_a, col_b = st.columns(2)
+            with col_a:
+                st.markdown('<div class="metric-card">', unsafe_allow_html=True)
+                st.metric(
+                    "Positive",
+                    f"{probabilities[1]:.1%}",
+                    delta=f"+{probabilities[1]:.1%}" if prediction == 1 else None
+                )
+                st.markdown('</div>', unsafe_allow_html=True)
+            
+            with col_b:
+                st.markdown('<div class="metric-card">', unsafe_allow_html=True)
+                st.metric(
+                    "Negative",
+                    f"{probabilities[0]:.1%}",
+                    delta=f"+{probabilities[0]:.1%}" if prediction == 0 else None
+                )
+                st.markdown('</div>', unsafe_allow_html=True)
+            
+            # Overall Confidence Progress
+            st.markdown("#### Overall Confidence")
+            st.progress(confidence)
+            st.markdown(f"<p style='text-align: center; color: #64748b; margin-top: 0.5rem;'>{confidence:.1%} confident in this prediction</p>", unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        st.error("⚠️ Please enter some text to analyze.")
 
-# # --- Custom CSS ---
-# st.markdown("""
-#     <style>
-#     .main {
-#         padding: 0rem 1rem;
-#     }
-#     .stTextArea textarea {
-#         border-radius: 10px;
-#     }
-#     .stButton>button {
-#         border-radius: 20px;
-#         padding: 0.5rem 2rem;
-#         background-color: #4CAF50;
-#         color: white;
-#         border: none;
-#         width: 100%;
-#     }
-#     .sentiment-box {
-#         padding: 1.5rem;
-#         border-radius: 10px;
-#         margin: 1rem 0;
-#         text-align: center;
-#     }
-#     </style>
-# """, unsafe_allow_html=True)
+# Footer
+st.markdown("""
+    <div class="footer-text">
+        <p>Powered by Minishlab Model • PCA • Logistic Regression</p>
+        <p>Made with ❤️ using Streamlit</p>
+    </div>
+""", unsafe_allow_html=True)
 
-# # --- Load Models ---
-# @st.cache_resource
-# def load_models():
-#     with open("pca_transform.pkl", "rb") as file:
-#         pca = pickle.load(file)
-#     with open("logistic_regression_model.pkl", "rb") as file:
-#         model = pickle.load(file)
-#     return pca, model
-
-# pca, model = load_models()
-
-# # --- Generate Embeddings ---
-# @st.cache_data
-# def generate_embeddings(text):
-#     model = StaticModel.from_pretrained("minishlab/potion-retrieval-32M")
-#     embeddings = model.encode([text])
-#     return embeddings
-
-# # --- Main Layout ---
-# col1, col2, col3 = st.columns([1, 2, 1])
-
-# with col2:
-#     # Header
-#     st.markdown("""
-#         <div style='text-align: center; padding: 2rem 0;'>
-#             <h1 style='color: #1E88E5; margin-bottom: 0;'>Sentiment Analyzer</h1>
-#             <p style='color: #666; font-size: 1.1em;'>Analyze text sentiment using AI</p>
-#         </div>
-#     """, unsafe_allow_html=True)
-    
-#     # Input Section
-#     user_input = st.text_area(
-#         "Enter your text:",
-#         placeholder="Type or paste your text here...",
-#         height=150
-#     )
-    
-#     if st.button("Analyze Sentiment"):
-#         if user_input.strip():
-#             with st.spinner("Analyzing sentiment..."):
-#                 # Process Input
-#                 embeddings = generate_embeddings(user_input)
-#                 X_pca = pca.transform(embeddings)
-#                 prediction = model.predict(X_pca)[0]
-#                 probabilities = model.predict_proba(X_pca)[0]
-                
-#                 # Display Results
-#                 sentiment = "Positive" if prediction == 1 else "Negative"
-#                 confidence = max(probabilities)
-#                 bg_color = "#E8F5E9" if prediction == 1 else "#FFEBEE"
-                
-#                 st.markdown(f"""
-#                     <div class='sentiment-box' style='background-color: {bg_color};'>
-#                         <h2 style='margin-bottom: 0.5rem;'>{sentiment}</h2>
-#                         <p style='font-size: 2rem; margin: 0;'>
-#                             {"😊" if prediction == 1 else "😔"}
-#                         </p>
-#                     </div>
-#                 """, unsafe_allow_html=True)
-                
-#                 # Confidence Scores
-#                 st.markdown("### Confidence Scores")
-#                 col_a, col_b = st.columns(2)
-                
-#                 with col_a:
-#                     st.metric(
-#                         "Positive",
-#                         f"{probabilities[1]:.1%}",
-#                         delta="confidence" if prediction == 1 else None
-#                     )
-                
-#                 with col_b:
-#                     st.metric(
-#                         "Negative",
-#                         f"{probabilities[0]:.1%}",
-#                         delta="confidence" if prediction == 0 else None
-#                     )
-                
-#                 # Visualization
-#                 st.progress(confidence)
-                
-#         else:
-#             st.error("Please enter some text to analyze.")
-
-# # --- Footer ---
-# st.markdown("""
-#     <div style='text-align: center; padding: 2rem 0; color: #666;'>
-#         <p>Made with ❤️ using Minishlab Model, PCA, Logistic Regression and Streamlit</p>
-#     </div>
-# """, unsafe_allow_html=True)
-
-
-#V2
-
-# # ---- Streamlit UI ----
-# st.set_page_config(page_title="AI Sentiment Classifier", page_icon="🤖", layout="centered")
-
-# # Sidebar for branding and instructions
-# st.sidebar.image("https://cdn-icons-png.flaticon.com/512/3076/3076401.png", width=120)  # AI Icon
-# st.sidebar.title("AI Sentiment Analyzer")
-# st.sidebar.markdown("🔍 **Analyze the sentiment of any review using AI-powered embeddings & PCA!**")
-# st.sidebar.info("⚡ Enter a review, and we'll predict whether it's **positive** or **negative** along with confidence scores.")
-
-# # Main content
-# st.markdown("<h2 style='text-align: center; color: #007bff;'>Sentiment Classification with Embeddings & PCA</h2>", unsafe_allow_html=True)
-
-# st.write("✍️ **Enter a review below and click 'Predict Sentiment'**")
-
-# # User input
-# user_input = st.text_area("Enter your review:", "")
-
-# if st.button("Predict Sentiment 🚀"):
-#     if user_input:
-#         # Generate embeddings
-#         embeddings = generate_embeddings(user_input)
-
-#         # Apply PCA transformation
-#         X_pca = pca.transform(embeddings)
-
-#         # Predict sentiment and probability
-#         prediction = model.predict(X_pca)[0]
-#         prob = model.predict_proba(X_pca)[0]  # Get probability scores
-#         confidence = max(prob)  # Confidence score
-
-#         # Sentiment Mapping
-#         if prediction == 1:
-#             sentiment = "Positive 😊"
-#             color = "green"
-#         else:
-#             sentiment = "Negative 😡"
-#             color = "red"
-
-#         # Display Result
-#         st.markdown(f"<h3 style='color: {color}; text-align: center;'>{sentiment}</h3>", unsafe_allow_html=True)
-
-#         # Display probability
-#         st.write("**Prediction Confidence:**")
-#         st.progress(confidence)  # Visual confidence score
-#         st.write(f"🔵 **Positive Probability:** {prob[1]:.2%}")
-#         st.write(f"🔴 **Negative Probability:** {prob[0]:.2%}")
-
-#     else:
-#         st.warning("⚠️ Please enter a review to predict sentiment.")
-
-#V1
-# # Streamlit App UI
-# st.title("Sentiment Classification with Embeddings & PCA")
-# st.write("Enter a review and get sentiment prediction!")
-
-# # User input
-# user_input = st.text_area("Enter your review:", "")
-
-# if st.button("Predict Sentiment"):
-#     if user_input:
-#         # Generate embeddings
-#         embeddings = generate_embeddings(user_input)
-
-#         # Apply PCA transformation
-#         X_pca = pca.transform(embeddings)
-
-#         # Predict sentiment
-#         prediction = model.predict(X_pca)[0]
-#         sentiment = "Positive 😊" if prediction == 1 else "Negative 😡"
-
-#         # Display result
-#         st.write(f"**Predicted Sentiment:** {sentiment}")
-#     else:
-#         st.write("⚠️ Please enter a review to predict sentiment.")
+st.markdown('</div>', unsafe_allow_html=True)
